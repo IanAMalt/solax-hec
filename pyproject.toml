@@ -1,0 +1,11 @@
+[project]
+name="solax-hec"
+version="0.1.0"
+description="Python library for SolaX HEC EV chargers"
+requires-python=">=3.10"
+
+dependencies=[
+  "requests",
+  "pymodbus>=3.4",
+  "pycryptodome"
+]

@@ -31,3 +31,20 @@ class Charger:
         )
 
         return value / 100.0
+
+    @property
+    def charge_mode(self) -> str:
+        """
+        Return the current charging mode.
+        """
+
+        value = self.modbus.read_holding(
+            HoldingRegisters.CHARGE_MODE
+        )
+
+        modes = {
+            0: "Fast",
+            1: "Eco",
+        }
+
+        return modes.get(value, f"Unknown ({value})")

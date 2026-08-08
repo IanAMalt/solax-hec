@@ -17,6 +17,7 @@ try:
     charger.connect()
 
     print(f"Fast charge current : {charger.fast_charge_current:.1f} A")
+    print(f"Charge mode         : {charger.charge_mode}")
 
     print("Success!")
 

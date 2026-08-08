@@ -4,6 +4,7 @@ High-level client for the SolaX HEC charger.
 
 from .modbus import ModbusConnection
 from .registers import HoldingRegisters
+from .models import ChargeMode
 
 
 class Charger:
@@ -22,18 +23,16 @@ class Charger:
 
     @property
     def fast_charge_current(self) -> float:
-        """
-        Return the configured Fast charging current in amps.
-        """
+        """Return the configured Fast charging current in amps."""
+
         value = self.modbus.read_holding(
             HoldingRegisters.FAST_CHARGE_CURRENT
         )
+
         return value / 100.0
 
     def set_fast_charge_current(self, amps: float):
-        """
-        Set the Fast charging current in amps.
-        """
+        """Set the Fast charging current in amps."""
 
         if amps < 6 or amps > 32:
             raise ValueError("Fast charge current must be between 6A and 32A.")
@@ -46,18 +45,11 @@ class Charger:
         )
 
     @property
-    def charge_mode(self) -> str:
-        """
-        Return the current charging mode.
-        """
+    def charge_mode(self) -> ChargeMode:
+        """Return the current charging mode."""
 
         value = self.modbus.read_holding(
             HoldingRegisters.CHARGE_MODE
         )
 
-        modes = {
-            0: "Fast",
-            1: "Eco",
-        }
-
-        return modes.get(value, f"Unknown ({value})")
+        return ChargeMode(value)

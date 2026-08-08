@@ -1,28 +1,12 @@
-\# Input Register Analysis
+\# SolaX HEC Register Map
 
 
 
-This section documents the current understanding of the SolaX HEC \*\*Input Registers\*\*.
+This document records the current understanding of the SolaX Gen2 HEC Modbus register map.
 
 
 
-Unlike the Holding Registers, these appear to contain \*\*live telemetry\*\* rather than configuration.
-
-
-
-Status values are based on comparison of multiple captures under different operating conditions:
-
-
-
-\- Waiting (vehicle connected, not charging)
-
-\- Charging
-
-\- Fast Charging (32 A)
-
-\- Fast Charging (16 A)
-
-\- Eco Charging
+Only registers that have been experimentally verified under multiple real-world operating conditions are marked as \*\*Confirmed\*\*.
 
 
 
@@ -30,81 +14,25 @@ Status values are based on comparison of multiple captures under different opera
 
 
 
-\# Confidence Levels
+\# Confirmed Input Registers
 
 
 
-| Status | Meaning |
-
-|---------|---------|
-
-| ✅ | Confirmed by experiment |
-
-| 🟢 | Very strong hypothesis |
-
-| 🟡 | Strong hypothesis |
-
-| ❓ | Unknown |
+These registers provide live telemetry from the charger.
 
 
 
-\---
+| Register | Hex | Description | Units | Access | Status |
 
+|---------:|:---:|-------------|------:|:------:|:------:|
 
+| 0 | 0x0000 | Grid Voltage | ×100 V | R | ✅ Confirmed |
 
-\# Telemetry Groups
+| 4 | 0x0004 | Charging Current | ×100 A | R | ✅ Confirmed |
 
+| 8 | 0x0008 | Charging Power | W | R | ✅ Confirmed |
 
-
-\## Group A – Grid Voltage
-
-
-
-| Property | Value |
-
-|----------|------|
-
-| Primary Register | 0 |
-
-| Mirror Register | 1281 |
-
-| Status | 🟢 |
-
-| Scaling | ÷100 |
-
-| Candidate Name | GRID\_VOLTAGE |
-
-
-
-\### Evidence
-
-
-
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|23586|23500|23290|23355|23400|
-
-
-
-Interpreted values:
-
-
-
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|235.86 V|235.00 V|232.90 V|233.55 V|234.00 V|
-
-
-
-\### Assessment
-
-
-
-Behaviour is entirely consistent with UK mains voltage reducing under increasing load.
+| 12 | 0x000C | Grid Frequency | ×100 Hz | R | ✅ Confirmed |
 
 
 
@@ -112,67 +40,39 @@ Behaviour is entirely consistent with UK mains voltage reducing under increasing
 
 
 
-\## Group B – Grid Frequency
+\# Confirmed Holding Registers
 
 
 
-| Property | Value |
-
-|----------|------|
-
-| Primary Register | 12 |
-
-| Mirror Register | None observed |
-
-| Status | 🟢 |
-
-| Scaling | ÷100 |
-
-| Candidate Name | GRID\_FREQUENCY |
+These registers control charger configuration.
 
 
 
-\### Evidence
+| Register | Hex | Description | Units | Access | Status |
+
+|---------:|:---:|-------------|------:|:------:|:------:|
+
+| 1640 | 0x0668 | Fast Charge Current | ×100 A | RW | ✅ Confirmed |
+
+| 1641 | 0x0669 | Charge Mode | Enum | RW | ✅ Confirmed |
 
 
 
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|4986|4984|4996|4992|4994|
+Charge Mode values:
 
 
 
-Interpreted values:
+| Value | Mode |
 
+|------:|------|
 
+| 0 | Fast |
 
-49.86 Hz
+| 1 | Eco |
 
+| 2 | Green |
 
-
-49.84 Hz
-
-
-
-49.96 Hz
-
-
-
-49.92 Hz
-
-
-
-49.94 Hz
-
-
-
-\### Assessment
-
-
-
-Values remain close to nominal UK mains frequency under all operating conditions.
+| 3 | Stop \*(currently believed, requires final confirmation)\* |
 
 
 
@@ -180,63 +80,29 @@ Values remain close to nominal UK mains frequency under all operating conditions
 
 
 
-\## Group C – Dynamic Measurement A
+\# Confirmed Mirror Registers
 
 
 
-| Property | Value |
-
-|----------|------|
-
-| Primary Register | 4 |
-
-| Mirrors | 58, 1285 |
-
-| Status | 🟡 |
-
-| Candidate Name | UNKNOWN\_DYNAMIC\_A |
+These registers appear to duplicate confirmed telemetry values.
 
 
 
-\### Evidence
+| Register | Mirrors | Notes |
+
+|---------:|---------|-------|
+
+| 11 | Charging Power | Mirrors Register 8 |
+
+| 58 | Charging Current | Mirrors Register 4 |
+
+| 61 | Charging Power | Mirrors Register 8 |
+
+| 64 | Charging Power | Mirrors Register 8 |
 
 
 
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|0|610|2018|1610|608|
-
-
-
-\### Assessment
-
-
-
-Strong correlation with charging activity.
-
-
-
-Not yet identified.
-
-
-
-Possible candidates:
-
-
-
-\- Charging power
-
-\- Requested power
-
-\- Output current
-
-\- PWM related measurement
-
-
-
-Further validation required.
+These are currently retained for documentation purposes only. The Python API uses the primary register for each measurement.
 
 
 
@@ -244,49 +110,21 @@ Further validation required.
 
 
 
-\## Group D – Dynamic Measurement B
+\# Registers of Interest
 
 
 
-| Property | Value |
-
-|----------|------|
-
-| Primary Register | 8 |
-
-| Mirrors | 11, 61, 64, 256, 1289, 1292, 2305, 2308 |
-
-| Status | 🟡 |
-
-| Candidate Name | UNKNOWN\_DYNAMIC\_B |
+These registers consistently change during charging but have not yet been positively identified.
 
 
 
-\### Evidence
+| Register | Notes |
 
+|---------:|-------|
 
+| 27 | Scales proportionally with charging load. Purpose currently unknown. |
 
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|0|1425|4687|3769|1422|
-
-
-
-\### Assessment
-
-
-
-Very strong correlation with charging activity.
-
-
-
-Likely represents an important live measurement.
-
-
-
-Relationship to Group C not yet understood.
+| 43 | Continuously increasing value. Appears to be a counter or timer. |
 
 
 
@@ -294,45 +132,33 @@ Relationship to Group C not yet understood.
 
 
 
-\## Group E – Dynamic Measurement C
+\# Validation
 
 
 
-| Property | Value |
-
-|----------|------|
-
-| Primary Register | 16 |
-
-| Mirror Register |1303|
-
-| Status | 🟡 |
-
-| Candidate Name | UNKNOWN\_DYNAMIC\_C |
+The confirmed telemetry registers have been verified during multiple operating conditions, including:
 
 
 
-\### Evidence
+\- Vehicle connected (idle)
+
+\- Vehicle charging
+
+\- Approximately 6 A charging
+
+\- Approximately 8 A charging
+
+\- Approximately 12 A charging
+
+\- Approximately 13 A charging
+
+\- Approximately 16 A charging
+
+\- Approximately 18 A charging
 
 
 
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|423|423|426|429|428|
-
-
-
-\### Assessment
-
-
-
-Small variation.
-
-
-
-Possibly temperature, duty cycle or another slowly changing analogue measurement.
+Validation was performed by comparing live charger behaviour against Modbus telemetry while changing the configured charging current and allowing the charger to stabilise after each change.
 
 
 
@@ -340,135 +166,21 @@ Possibly temperature, duty cycle or another slowly changing analogue measurement
 
 
 
-\## Group F – Unknown Scaled Measurement
+\# Design Philosophy
 
 
 
-| Property | Value |
+This project intentionally separates \*\*confirmed knowledge\*\* from \*\*ongoing reverse engineering\*\*.
 
-|----------|------|
 
-| Primary Register |27|
 
-| Status |🟡|
+A register is only promoted to \*\*Confirmed\*\* after repeated experimental verification.
 
-| Candidate Name |UNKNOWN\_SCALED|
 
 
+Candidate or speculative registers should remain documented in the `docs/experiments/` directory until sufficient evidence exists to promote them into this document.
 
-\### Evidence
 
 
-
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|1000|100|333|266|100|
-
-
-
-\### Assessment
-
-
-
-Clearly scaled.
-
-
-
-Meaning unknown.
-
-
-
-\---
-
-
-
-\## Group G – Unknown Counter
-
-
-
-| Property | Value |
-
-|----------|------|
-
-| Primary Register |43|
-
-| Status |❓|
-
-| Candidate Name |UNKNOWN\_COUNTER|
-
-
-
-\### Evidence
-
-
-
-| Waiting | Charging | Fast 32A | Fast 16A | Eco |
-
-|---------:|---------:|----------:|----------:|----:|
-
-|1568|42|857|1207|969|
-
-
-
-Assessment currently inconclusive.
-
-
-
-\---
-
-
-
-\# Mirror Groups
-
-
-
-The following register groups appear to contain duplicate or mirrored measurements.
-
-
-
-| Primary | Mirrors |
-
-|----------|---------|
-
-|0|1281|
-
-|4|58,1285|
-
-|8|11,61,64,256,1289,1292,2305,2308|
-
-|16|1303|
-
-
-
-These should be treated as a single logical measurement until evidence suggests otherwise.
-
-
-
-\---
-
-
-
-\# Outstanding Validation
-
-
-
-Before promoting any hypothesis to the public API:
-
-
-
-\- Verify scaling against independent measurements.
-
-\- Correlate with Home Assistant values.
-
-\- Correlate with charger LCD/app values.
-
-\- Confirm behaviour across multiple charging currents.
-
-\- Confirm behaviour after firmware updates.
-
-
-
-Only then should a register be promoted to \*\*Confirmed\*\*.
+This approach keeps the public API stable while allowing reverse engineering to continue independently.
 

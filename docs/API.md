@@ -1,268 +1,229 @@
-\# SolaX HEC Python API
+# solax-hec API
 
+This document describes the public Python API exposed by the `solax-hec` library.
 
+---
 
-This document describes the intended public API of the library.
+# Charger
 
-
-
-It is a design target rather than a description of the current implementation.
-
-
-
-\---
-
-
-
-\# Creating a charger
-
-
+The primary interface is the `Charger` class.
 
 ```python
-
-from solax\_hec import Charger
-
-
+from solax_hec import Charger
 
 charger = Charger("192.168.0.169")
-
-
-
 charger.connect()
 
+# Use the API...
+
+charger.close()
 ```
 
+---
 
+# Configuration
 
-\---
+## fast_charge_current
 
+Returns the configured Fast charging current.
 
-
-\# Reading configuration
-
-
+**Type**
 
 ```python
-
-charger.fast\_charge\_current
-
-charger.charge\_mode
-
+float
 ```
 
+**Units**
 
+```
+Amps
+```
+
+### Read
+
+```python
+charger.fast_charge_current
+```
+
+### Write
+
+```python
+charger.set_fast_charge_current(16)
+```
+
+Valid range:
+
+```
+6 A – 32 A
+```
+
+---
+
+## charge_mode
+
+Returns the configured charging mode.
+
+**Type**
+
+```python
+ChargeMode
+```
+
+### Read
+
+```python
+charger.charge_mode
+```
+
+### Write
+
+```python
+from solax_hec.models import ChargeMode
+
+charger.set_charge_mode(ChargeMode.FAST)
+```
+
+Supported modes:
+
+- Fast
+- Eco
+- Green
+- Stop
+
+---
+
+# Live Telemetry
+
+## grid_voltage
+
+Current measured grid voltage.
+
+**Type**
+
+```python
+float
+```
+
+**Units**
+
+```
+Volts
+```
 
 Example:
 
-
-
 ```python
-
-print(charger.fast\_charge\_current)
-
-\# 32.0
-
-
-
-print(charger.charge\_mode)
-
-\# ChargeMode.FAST
-
+charger.grid_voltage
 ```
 
+---
 
+## grid_frequency
 
-\---
+Current measured grid frequency.
 
-
-
-\# Changing configuration
-
-
+**Type**
 
 ```python
-
-charger.set\_fast\_charge\_current(16)
-
-
-
-charger.set\_charge\_mode(ChargeMode.ECO)
-
+float
 ```
 
+**Units**
 
+```
+Hz
+```
 
-\---
-
-
-
-\# Charger status
-
-
+Example:
 
 ```python
-
-charger.is\_vehicle\_connected
-
-
-
-charger.is\_charging
-
-
-
-charger.is\_faulted
-
-
-
-charger.status
-
+charger.grid_frequency
 ```
 
+---
 
+## charging_current
 
-\---
+Current charging current.
 
-
-
-\# Grid information
-
-
+**Type**
 
 ```python
-
-charger.grid\_voltage
-
-
-
-charger.grid\_frequency
-
-
-
-charger.grid\_power
-
+float
 ```
 
+**Units**
 
+```
+Amps
+```
 
-\---
-
-
-
-\# Charging session
-
-
+Example:
 
 ```python
-
-charger.session\_energy
-
-
-
-charger.session\_duration
-
-
-
-charger.vehicle\_soc
-
+charger.charging_current
 ```
 
+---
 
+## charging_power
 
-\---
+Current charging power.
 
-
-
-\# Device information
-
-
+**Type**
 
 ```python
-
-charger.serial\_number
-
-
-
-charger.model
-
-
-
-charger.firmware\_version
-
-
-
-charger.hardware\_version
-
+int
 ```
 
+**Units**
 
+```
+Watts
+```
 
-\---
-
-
-
-\# Control
-
-
+Example:
 
 ```python
-
-charger.start\_charge()
-
-
-
-charger.stop\_charge()
-
-
-
-charger.reboot()
-
+charger.charging_power
 ```
 
+---
 
-
-\---
-
-
-
-\# Diagnostics
-
-
+# Typical Example
 
 ```python
+from solax_hec import Charger
 
-charger.last\_error
+charger = Charger("192.168.0.169")
 
+charger.connect()
 
+print(f"Voltage : {charger.grid_voltage:.2f} V")
+print(f"Frequency : {charger.grid_frequency:.2f} Hz")
+print(f"Current : {charger.charging_current:.2f} A")
+print(f"Power : {charger.charging_power} W")
 
-charger.temperature
+print(f"Mode : {charger.charge_mode}")
+print(f"Fast Limit : {charger.fast_charge_current:.1f} A")
 
-
-
-charger.uptime
-
+charger.close()
 ```
 
+---
 
+# Stability
 
-\---
+The following API is considered stable:
 
+- `fast_charge_current`
+- `set_fast_charge_current()`
+- `charge_mode`
+- `set_charge_mode()`
+- `grid_voltage`
+- `grid_frequency`
+- `charging_current`
+- `charging_power`
 
-
-\# Future features
-
-
-
-\- HTTP authentication
-
-\- Automatic charger discovery
-
-\- Firmware update support
-
-\- Event callbacks
-
-\- Home Assistant integration
-
-\- Async API
-
-\- MQTT bridge
+Additional telemetry may be added in future releases as more registers are experimentally verified.
 

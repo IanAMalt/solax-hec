@@ -1,126 +1,226 @@
-# \# solax-hec
+\# solax-hec
 
-# 
 
-# A Python library for locally controlling and monitoring SolaX Gen2 HEC EV chargers.
 
-# 
+A Python library for locally controlling and monitoring SolaX Gen2 HEC EV chargers over Modbus TCP.
 
-# > \*\*Project Status:\*\* 🚧 Early development
 
-# 
 
-# \## Features
+> \*\*Project Status:\*\* 🚧 Active development (Core SDK functional)
 
-# 
 
-# \### Working
 
-# 
+\---
 
-# \- ✅ Local HTTP authentication
 
-# \- ✅ Modbus TCP communication
 
-# \- ✅ Read Holding Registers
+\## Features
 
-# \- ✅ Read Input Registers
 
-# \- ✅ Write Holding Registers
 
-# \- ✅ Change charging mode
+\### Working
 
-# \- ✅ Change fast charge current
 
-# \- ✅ Reverse engineered register map
 
-# 
+\- ✅ Local HTTP authentication
 
-# \### Planned
+\- ✅ Modbus TCP communication
 
-# 
+\- ✅ High-level Python API
 
-# \- 🚧 High-level Python API
+\- ✅ Read Fast charge current
 
-# \- 🚧 Home Assistant integration
+\- ✅ Set Fast charge current
 
-# \- 🚧 MQTT support
+\- ✅ Read charge mode
 
-# \- 🚧 Automatic charger discovery
+\- ✅ Set charge mode
 
-# \- 🚧 Async API
+\- ✅ Read live charging current
 
-# 
+\- ✅ Read live charging power
 
-# \## Confirmed Registers
+\- ✅ Read grid voltage
 
-# 
+\- ✅ Read grid frequency
 
-# | Register | Description | Access |
+\- ✅ Reverse engineered register map
 
-# |----------:|-------------|:------:|
 
-# | 1640 | Fast charge current (×100 A) | RW |
 
-# | 1641 | Charge mode (0=Fast, 1=Eco, 2=Green) | RW |
+\### Planned
 
-# | 0 | Grid voltage (×100 V) | R |
 
-# | 12 | Grid frequency (×100 Hz) | R |
 
-# | 4 | Charge current (candidate) | R |
+\- 🚧 Home Assistant integration
 
-# | 8 | Charge power (candidate) | R |
+\- 🚧 MQTT support
 
-# 
+\- 🚧 Automatic charger discovery
 
-# \## Repository Structure
+\- 🚧 Async API
 
-# 
+\- 🚧 Additional telemetry
 
-# ```
+\- 🚧 Fault/status reporting
 
-# docs/
 
-# examples/
 
-# solax\_hec/
+\---
 
-# tests/
 
-# tools/
 
-# ```
+\## Example
 
-# 
 
-# \## Roadmap
 
-# 
+```python
 
-# \- \[x] HTTP authentication
+from solax\_hec import Charger
 
-# \- \[x] Modbus communication
 
-# \- \[x] Register discovery
 
-# \- \[ ] High-level client
+charger = Charger("192.168.0.169")
 
-# \- \[ ] Home Assistant integration
 
-# \- \[ ] Documentation
 
-# \- \[ ] PyPI package
+charger.connect()
 
-# 
 
-# \## Disclaimer
 
-# 
+print(f"Grid Voltage      : {charger.grid\_voltage:.2f} V")
 
-# This project is not affiliated with or endorsed by SolaX Power.
+print(f"Grid Frequency    : {charger.grid\_frequency:.2f} Hz")
 
-# 
+print(f"Charging Current  : {charger.charging\_current:.2f} A")
 
-# It is a community reverse engineering effort intended to provide local control and monitoring of compatible chargers.
+print(f"Charging Power    : {charger.charging\_power} W")
+
+
+
+print(f"Fast Current      : {charger.fast\_charge\_current:.1f} A")
+
+print(f"Charge Mode       : {charger.charge\_mode}")
+
+
+
+charger.close()
+
+```
+
+
+
+\---
+
+
+
+\## Confirmed Registers
+
+
+
+| Register | Description | Access |
+
+|---------:|-----------------------------------------|:------:|
+
+| 0 | Grid voltage (×100 V) | R |
+
+| 4 | Charging current (×100 A) | R |
+
+| 8 | Charging power (W) | R |
+
+| 12 | Grid frequency (×100 Hz) | R |
+
+| 58 | Charging current (mirror) | R |
+
+| 61 | Charging power (mirror) | R |
+
+| 64 | Charging power (mirror) | R |
+
+| 1640 | Fast charge current (×100 A) | RW |
+
+| 1641 | Charge mode (0=Fast, 1=Eco, 2=Green) | RW |
+
+
+
+\---
+
+
+
+\## Repository Structure
+
+
+
+```
+
+docs/
+
+examples/
+
+solax\_hec/
+
+tests/
+
+tools/
+
+```
+
+
+
+\---
+
+
+
+\## Roadmap
+
+
+
+\- \[x] HTTP authentication
+
+\- \[x] Modbus TCP communication
+
+\- \[x] Register discovery
+
+\- \[x] High-level Python client
+
+\- \[ ] Home Assistant integration
+
+\- \[ ] MQTT support
+
+\- \[ ] Additional telemetry
+
+\- \[ ] Documentation
+
+\- \[ ] PyPI package
+
+
+
+\---
+
+
+
+\## Project Philosophy
+
+
+
+This project focuses on providing a clean, well-documented Python SDK for locally controlling and monitoring SolaX Gen2 HEC chargers.
+
+
+
+Registers are only marked as \*\*confirmed\*\* after they have been experimentally verified under multiple real-world operating conditions. Reverse engineering continues, but stability and correctness take priority over exposing undocumented functionality.
+
+
+
+\---
+
+
+
+\## Disclaimer
+
+
+
+This project is not affiliated with or endorsed by SolaX Power.
+
+
+
+It is a community reverse engineering effort intended to provide local control and monitoring of compatible chargers.
 

@@ -7,7 +7,6 @@ Run from the project root with:
 """
 
 from solax_hec.client import Charger
-from solax_hec.registers import HoldingRegisters
 
 HOST = "192.168.0.169"
 
@@ -17,20 +16,7 @@ try:
     print("Connecting...")
     charger.connect()
 
-    print(
-        "Fast charge current:",
-        charger.modbus.read_holding(HoldingRegisters.FAST_CHARGE_CURRENT),
-    )
-
-    print(
-        "Charge mode:",
-        charger.modbus.read_holding(HoldingRegisters.CHARGE_MODE),
-    )
-
-    print(
-        "Unknown 1642:",
-        charger.modbus.read_holding(HoldingRegisters.UNKNOWN_1642),
-    )
+    print(f"Fast charge current : {charger.fast_charge_current:.1f} A")
 
     print("Success!")
 

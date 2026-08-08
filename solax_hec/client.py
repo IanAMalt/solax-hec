@@ -1,4 +1,9 @@
+"""
+High-level client for the SolaX HEC charger.
+"""
+
 from .modbus import ModbusConnection
+from .registers import HoldingRegisters
 
 
 class Charger:
@@ -8,7 +13,21 @@ class Charger:
         self.modbus = ModbusConnection(host)
 
     def connect(self):
+        """Connect to the charger."""
         self.modbus.connect()
 
     def close(self):
+        """Close the connection to the charger."""
         self.modbus.close()
+
+    @property
+    def fast_charge_current(self) -> float:
+        """
+        Return the configured Fast charging current in amps.
+        """
+
+        value = self.modbus.read_holding(
+            HoldingRegisters.FAST_CHARGE_CURRENT
+        )
+
+        return value / 100.0

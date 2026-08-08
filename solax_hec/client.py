@@ -1,25 +1,14 @@
-from .enums import ChargeMode
-from . import registers
+from .modbus import ModbusConnection
 
-class SolaxHECClient:
-    """High-level client skeleton.
 
-    TODO:
-      * integrate HTTP login/session
-      * integrate Modbus TCP backend
-      * expose telemetry as Python properties
-    """
+class Charger:
+    """High-level interface to a SolaX HEC charger."""
 
-    def __init__(self, host:str, username:str="", password:str=""):
-        self.host=host
-        self.username=username
-        self.password=password
+    def __init__(self, host: str):
+        self.modbus = ModbusConnection(host)
 
-    def login(self):
-        raise NotImplementedError("Reuse your existing api.py/crypto.py implementation")
+    def connect(self):
+        self.modbus.connect()
 
-    def set_mode(self, mode:ChargeMode):
-        raise NotImplementedError
-
-    def set_fast_current(self, amps:float):
-        raise NotImplementedError
+    def close(self):
+        self.modbus.close()

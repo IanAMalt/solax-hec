@@ -1,1 +1,3 @@
-from .client import SolaxHECClient
+from .client import Charger
+
+__all__ = ["Charger"]

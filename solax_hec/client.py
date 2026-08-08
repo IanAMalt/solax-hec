@@ -25,12 +25,25 @@ class Charger:
         """
         Return the configured Fast charging current in amps.
         """
-
         value = self.modbus.read_holding(
             HoldingRegisters.FAST_CHARGE_CURRENT
         )
-
         return value / 100.0
+
+    def set_fast_charge_current(self, amps: float):
+        """
+        Set the Fast charging current in amps.
+        """
+
+        if amps < 6 or amps > 32:
+            raise ValueError("Fast charge current must be between 6A and 32A.")
+
+        value = int(round(amps * 100))
+
+        self.modbus.write_holding(
+            HoldingRegisters.FAST_CHARGE_CURRENT,
+            value,
+        )
 
     @property
     def charge_mode(self) -> str:

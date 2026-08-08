@@ -4,7 +4,7 @@ High-level client for the SolaX HEC charger.
 
 from .modbus import ModbusConnection
 from .models import ChargeMode
-from .registers import HoldingRegisters
+from .registers import HoldingRegisters, InputRegisters
 
 
 class Charger:
@@ -20,6 +20,10 @@ class Charger:
     def close(self):
         """Close the connection."""
         self.modbus.close()
+
+    # ------------------------------------------------------------------
+    # Configuration
+    # ------------------------------------------------------------------
 
     @property
     def fast_charge_current(self) -> float:
@@ -67,4 +71,47 @@ class Charger:
         self.modbus.write_holding(
             HoldingRegisters.CHARGE_MODE,
             mode.value,
+        )
+
+    # ------------------------------------------------------------------
+    # Live Telemetry
+    # ------------------------------------------------------------------
+
+    @property
+    def grid_voltage(self) -> float:
+        """
+        Return the measured grid voltage in volts.
+        """
+        value = self.modbus.read_input(
+            InputRegisters.GRID_VOLTAGE
+        )
+        return value / 100.0
+
+    @property
+    def grid_frequency(self) -> float:
+        """
+        Return the measured grid frequency in Hz.
+        """
+        value = self.modbus.read_input(
+            InputRegisters.GRID_FREQUENCY
+        )
+        return value / 100.0
+
+    @property
+    def charging_current(self) -> float:
+        """
+        Return the current charging current in amps.
+        """
+        value = self.modbus.read_input(
+            InputRegisters.CHARGING_CURRENT
+        )
+        return value / 100.0
+
+    @property
+    def charging_power(self) -> int:
+        """
+        Return the current charging power in watts.
+        """
+        return self.modbus.read_input(
+            InputRegisters.CHARGING_POWER
         )

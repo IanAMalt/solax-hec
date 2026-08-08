@@ -1,28 +1,50 @@
-\# SolaX HEC Register Map
+\# Input Register Analysis
 
 
 
-This document records the current understanding of the SolaX HEC Modbus register map.
+This section documents the current understanding of the SolaX HEC \*\*Input Registers\*\*.
 
 
 
-It is based on reverse engineering performed against a real 7.2 kW SolaX HEC charger.
+Unlike the Holding Registers, these appear to contain \*\*live telemetry\*\* rather than configuration.
 
 
 
-\## Register Status
+Status values are based on comparison of multiple captures under different operating conditions:
+
+
+
+\- Waiting (vehicle connected, not charging)
+
+\- Charging
+
+\- Fast Charging (32 A)
+
+\- Fast Charging (16 A)
+
+\- Eco Charging
+
+
+
+\---
+
+
+
+\# Confidence Levels
 
 
 
 | Status | Meaning |
 
-|--------|---------|
+|---------|---------|
 
-| ✅ | Confirmed by testing on real hardware |
+| ✅ | Confirmed by experiment |
 
-| 🟡 | Strong hypothesis based on observed behaviour |
+| 🟢 | Very strong hypothesis |
 
-| ❓ | Unknown purpose |
+| 🟡 | Strong hypothesis |
+
+| ❓ | Unknown |
 
 
 
@@ -30,135 +52,59 @@ It is based on reverse engineering performed against a real 7.2 kW SolaX HEC cha
 
 
 
-\# Holding Registers
+\# Telemetry Groups
 
 
 
-| Register | Constant | Type | Status | Description | Notes |
+\## Group A – Grid Voltage
 
-|---------:|----------|------|:------:|-------------|-------|
 
-| 1600 | CHARGER\_STATUS | uint16 | ❓ | Charger status | Observed value: 70 while charging |
 
-| 1601 | UNKNOWN\_1601 | uint16 | ❓ | Unknown | |
+| Property | Value |
 
-| 1602 | UNKNOWN\_1602 | uint16 | ❓ | Unknown | |
+|----------|------|
 
-| 1603 | CHARGER\_RATED\_POWER | uint16 | 🟡 | Rated charger power | 7200 on a 7.2 kW charger |
+| Primary Register | 0 |
 
-| 1604 | UNKNOWN\_1604 | uint16 | ❓ | Unknown | |
+| Mirror Register | 1281 |
 
-| 1605 | UNKNOWN\_1605 | uint16 | ❓ | Unknown | Observed value: 4 |
+| Status | 🟢 |
 
-| 1606 | UNKNOWN\_1606 | uint16 | ❓ | Unknown | |
+| Scaling | ÷100 |
 
-| 1607 | UNKNOWN\_1607 | uint16 | ❓ | Unknown | |
+| Candidate Name | GRID\_VOLTAGE |
 
-| 1608 | UNKNOWN\_1608 | uint16 | ❓ | Unknown | |
 
-| 1609 | UNKNOWN\_1609 | uint16 | ❓ | Unknown | |
 
-| 1610 | UNKNOWN\_1610 | uint16 | ❓ | Unknown | |
+\### Evidence
 
-| 1611 | UNKNOWN\_1611 | uint16 | ❓ | Unknown | |
 
-| 1612 | UNKNOWN\_1612 | uint16 | ❓ | Unknown | Observed value: 4 |
 
-| 1613 | UNKNOWN\_1613 | uint16 | ❓ | Unknown | |
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
 
-| 1614 | UNKNOWN\_1614 | uint16 | ❓ | Unknown | |
+|---------:|---------:|----------:|----------:|----:|
 
-| 1615 | FAST\_CHARGE\_CURRENT\_SHADOW | uint16 | 🟡 | Mirrors fast charge current | Observed value: 3200 |
+|23586|23500|23290|23355|23400|
 
-| 1616 | UNKNOWN\_1616 | uint16 | ❓ | Unknown | |
 
-| 1617 | UNKNOWN\_1617 | uint16 | ❓ | Unknown | |
 
-| 1618 | UNKNOWN\_1618 | uint16 | ❓ | Unknown | |
+Interpreted values:
 
-| 1619 | UNKNOWN\_1619 | uint16 | ❓ | Unknown | |
 
-| 1620 | UNKNOWN\_1620 | uint16 | ❓ | Unknown | |
 
-| 1621 | UNKNOWN\_1621 | uint16 | ❓ | Unknown | |
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
 
-| 1622 | UNKNOWN\_1622 | uint16 | ❓ | Unknown | |
+|---------:|---------:|----------:|----------:|----:|
 
-| 1623 | UNKNOWN\_1623 | uint16 | ❓ | Unknown | |
+|235.86 V|235.00 V|232.90 V|233.55 V|234.00 V|
 
-| 1624 | UNKNOWN\_1624 | uint16 | ❓ | Unknown | |
 
-| 1625 | UNKNOWN\_1625 | uint16 | ❓ | Unknown | |
 
-| 1626 | UNKNOWN\_1626 | uint16 | ❓ | Unknown | |
+\### Assessment
 
-| 1627 | UNKNOWN\_1627 | uint16 | ❓ | Unknown | |
 
-| 1628 | UNKNOWN\_1628 | uint16 | ❓ | Unknown | |
 
-| 1629 | UNKNOWN\_1629 | uint16 | ❓ | Unknown | |
-
-| 1630 | UNKNOWN\_1630 | uint16 | ❓ | Unknown | |
-
-| 1631 | UNKNOWN\_1631 | uint16 | ❓ | Unknown | |
-
-| 1632 | UNKNOWN\_1632 | uint16 | ❓ | Unknown | |
-
-| 1633 | UNKNOWN\_1633 | uint16 | ❓ | Unknown | |
-
-| 1634 | UNKNOWN\_1634 | uint16 | ❓ | Boolean flag | Value 1 while charging |
-
-| 1635 | UNKNOWN\_1635 | uint16 | ❓ | Unknown | |
-
-| 1636 | UNKNOWN\_1636 | uint16 | ❓ | Boolean flag | Value 1 while charging |
-
-| 1637 | UNKNOWN\_1637 | uint16 | ❓ | Unknown | |
-
-| 1638 | UNKNOWN\_1638 | uint16 | ❓ | Unknown | |
-
-| 1639 | UNKNOWN\_1639 | uint16 | ❓ | Unknown | |
-
-| 1640 | FAST\_CHARGE\_CURRENT | uint16 | ✅ | Fast charge current | Read/write. Stored as current ×100 |
-
-| 1641 | CHARGE\_MODE | enum | ✅ | Charger operating mode | 0 = Fast, 1 = Eco |
-
-| 1642 | UNKNOWN\_1642 | uint16 | ❓ | Unknown | |
-
-| 1643 | UNKNOWN\_1643 | uint16 | ❓ | Unknown | |
-
-| 1644 | UNKNOWN\_1644 | uint16 | ❓ | Boolean flag | Value 1 while charging |
-
-| 1645 | UNKNOWN\_1645 | uint16 | ❓ | Boolean flag | Value 1 while charging |
-
-| 1646 | UNKNOWN\_1646 | uint16 | ❓ | Unknown | |
-
-| 1647 | UNKNOWN\_1647 | uint16 | ❓ | Unknown | |
-
-| 1648 | UNKNOWN\_1648 | uint16 | ❓ | Status code | Observed value: 3 while charging |
-
-| 1649 | UNKNOWN\_1649 | uint16 | ❓ | Unknown | |
-
-| 1650 | UNKNOWN\_1650 | uint16 | ❓ | Percentage? | Observed value: 100 |
-
-| 1651 | UNKNOWN\_1651 | uint16 | ❓ | Unknown | |
-
-| 1652 | UNKNOWN\_1652 | uint16 | ❓ | Unknown | |
-
-| 1653 | UNKNOWN\_1653 | uint16 | ❓ | State code | Observed value: 5 while charging |
-
-| 1654 | UNKNOWN\_1654 | uint16 | ❓ | Unknown | |
-
-| 1655 | UNKNOWN\_1655 | uint16 | ❓ | Status code | Observed value: 3 |
-
-| 1656 | UNKNOWN\_1656 | uint16 | ❓ | Unknown | Observed value: 12601 |
-
-| 1657 | UNKNOWN\_1657 | uint16 | ❓ | Unknown | Observed value: 12846 |
-
-| 1658 | UNKNOWN\_1658 | uint16 | ❓ | Unknown | Observed value: 12598 |
-
-| 1659 | UNKNOWN\_1659 | uint16 | ❓ | Unknown | Observed value: 14382 |
-
-| 1660 | UNKNOWN\_1660 | uint16 | ❓ | Unknown | Observed value: 12334 |
+Behaviour is entirely consistent with UK mains voltage reducing under increasing load.
 
 
 
@@ -166,87 +112,67 @@ It is based on reverse engineering performed against a real 7.2 kW SolaX HEC cha
 
 
 
-\# Confirmed Behaviour
+\## Group B – Grid Frequency
 
 
 
-\## Register 1640 – Fast Charge Current
+| Property | Value |
+
+|----------|------|
+
+| Primary Register | 12 |
+
+| Mirror Register | None observed |
+
+| Status | 🟢 |
+
+| Scaling | ÷100 |
+
+| Candidate Name | GRID\_FREQUENCY |
 
 
 
-\*\*Status:\*\* ✅ Confirmed
+\### Evidence
 
 
 
-\- Read/write
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
 
-\- Stored as amps × 100
+|---------:|---------:|----------:|----------:|----:|
 
-
-
-Examples:
+|4986|4984|4996|4992|4994|
 
 
 
-| Register Value | Current |
-
-|--------------:|--------:|
-
-| 600 | 6.00 A |
-
-| 1600 | 16.00 A |
-
-| 3200 | 32.00 A |
+Interpreted values:
 
 
 
-\---
+49.86 Hz
 
 
 
-\## Register 1641 – Charge Mode
+49.84 Hz
 
 
 
-\*\*Status:\*\* ✅ Confirmed
+49.96 Hz
 
 
 
-| Value | Mode |
-
-|------:|------|
-
-| 0 | Fast |
-
-| 1 | Eco |
+49.92 Hz
 
 
 
-Read/write verified on real hardware.
+49.94 Hz
 
 
 
-\---
+\### Assessment
 
 
 
-\# Test Platform
-
-
-
-Testing performed using:
-
-
-
-\- SolaX HEC 7.2 kW charger
-
-\- Modbus TCP
-
-\- Python 3.10
-
-\- pymodbus
-
-\- Firmware version: \*(to be recorded)\*
+Values remain close to nominal UK mains frequency under all operating conditions.
 
 
 
@@ -254,59 +180,63 @@ Testing performed using:
 
 
 
-\# Future Investigation
+\## Group C – Dynamic Measurement A
 
 
 
-\## High Priority
+| Property | Value |
+
+|----------|------|
+
+| Primary Register | 4 |
+
+| Mirrors | 58, 1285 |
+
+| Status | 🟡 |
+
+| Candidate Name | UNKNOWN\_DYNAMIC\_A |
 
 
 
-\- Vehicle connected
-
-\- Charging active
-
-\- Cable locked
-
-\- Charger state
-
-\- Fault codes
-
-\- Session energy
-
-\- Grid voltage
-
-\- Grid current
-
-\- Power
-
-\- Temperature
+\### Evidence
 
 
 
-\## Medium Priority
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
+
+|---------:|---------:|----------:|----------:|----:|
+
+|0|610|2018|1610|608|
 
 
 
-\- Firmware version
-
-\- Serial number
-
-\- Hardware revision
-
-\- Uptime
+\### Assessment
 
 
 
-\## Low Priority
+Strong correlation with charging activity.
 
 
 
-\- Manufacturing information
+Not yet identified.
 
-\- Diagnostic counters
 
-\- Reserved registers
+
+Possible candidates:
+
+
+
+\- Charging power
+
+\- Requested power
+
+\- Output current
+
+\- PWM related measurement
+
+
+
+Further validation required.
 
 
 
@@ -314,37 +244,231 @@ Testing performed using:
 
 
 
-\# Changelog
+\## Group D – Dynamic Measurement B
 
 
 
-\## 2026-08-08
+| Property | Value |
+
+|----------|------|
+
+| Primary Register | 8 |
+
+| Mirrors | 11, 61, 64, 256, 1289, 1292, 2305, 2308 |
+
+| Status | 🟡 |
+
+| Candidate Name | UNKNOWN\_DYNAMIC\_B |
 
 
 
-\### Confirmed
+\### Evidence
 
 
 
-\- Register 1640 – Fast charge current
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
 
-\- Register 1641 – Charge mode
+|---------:|---------:|----------:|----------:|----:|
 
-
-
-\### Strong hypotheses
+|0|1425|4687|3769|1422|
 
 
 
-\- Register 1603 – Rated charger power
-
-\- Register 1615 – Shadow copy of fast charge current
+\### Assessment
 
 
 
-\### Unknown
+Very strong correlation with charging activity.
 
 
 
-Remaining registers are under active investigation.
+Likely represents an important live measurement.
+
+
+
+Relationship to Group C not yet understood.
+
+
+
+\---
+
+
+
+\## Group E – Dynamic Measurement C
+
+
+
+| Property | Value |
+
+|----------|------|
+
+| Primary Register | 16 |
+
+| Mirror Register |1303|
+
+| Status | 🟡 |
+
+| Candidate Name | UNKNOWN\_DYNAMIC\_C |
+
+
+
+\### Evidence
+
+
+
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
+
+|---------:|---------:|----------:|----------:|----:|
+
+|423|423|426|429|428|
+
+
+
+\### Assessment
+
+
+
+Small variation.
+
+
+
+Possibly temperature, duty cycle or another slowly changing analogue measurement.
+
+
+
+\---
+
+
+
+\## Group F – Unknown Scaled Measurement
+
+
+
+| Property | Value |
+
+|----------|------|
+
+| Primary Register |27|
+
+| Status |🟡|
+
+| Candidate Name |UNKNOWN\_SCALED|
+
+
+
+\### Evidence
+
+
+
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
+
+|---------:|---------:|----------:|----------:|----:|
+
+|1000|100|333|266|100|
+
+
+
+\### Assessment
+
+
+
+Clearly scaled.
+
+
+
+Meaning unknown.
+
+
+
+\---
+
+
+
+\## Group G – Unknown Counter
+
+
+
+| Property | Value |
+
+|----------|------|
+
+| Primary Register |43|
+
+| Status |❓|
+
+| Candidate Name |UNKNOWN\_COUNTER|
+
+
+
+\### Evidence
+
+
+
+| Waiting | Charging | Fast 32A | Fast 16A | Eco |
+
+|---------:|---------:|----------:|----------:|----:|
+
+|1568|42|857|1207|969|
+
+
+
+Assessment currently inconclusive.
+
+
+
+\---
+
+
+
+\# Mirror Groups
+
+
+
+The following register groups appear to contain duplicate or mirrored measurements.
+
+
+
+| Primary | Mirrors |
+
+|----------|---------|
+
+|0|1281|
+
+|4|58,1285|
+
+|8|11,61,64,256,1289,1292,2305,2308|
+
+|16|1303|
+
+
+
+These should be treated as a single logical measurement until evidence suggests otherwise.
+
+
+
+\---
+
+
+
+\# Outstanding Validation
+
+
+
+Before promoting any hypothesis to the public API:
+
+
+
+\- Verify scaling against independent measurements.
+
+\- Correlate with Home Assistant values.
+
+\- Correlate with charger LCD/app values.
+
+\- Confirm behaviour across multiple charging currents.
+
+\- Confirm behaviour after firmware updates.
+
+
+
+Only then should a register be promoted to \*\*Confirmed\*\*.
 

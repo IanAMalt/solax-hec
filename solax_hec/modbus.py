@@ -1,10 +1,3 @@
-import os
-import sys
-
-print("cwd:", os.getcwd())
-print("sys.path:", sys.path)
-
-
 from pymodbus.client import ModbusTcpClient
 
 

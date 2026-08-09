@@ -13,3 +13,16 @@ class ChargeMode(Enum):
     def __str__(self) -> str:
         """Return a human-readable mode name."""
         return self.name.capitalize()
+
+
+class ChargerUseMode(Enum):
+    """Charger use modes supported by the SolaX HEC charger."""
+
+    STOP = 0
+    FAST = 1
+    ECO = 2
+    GREEN = 3
+
+    def __str__(self) -> str:
+        """Return a human-readable use mode name."""
+        return self.name.capitalize()

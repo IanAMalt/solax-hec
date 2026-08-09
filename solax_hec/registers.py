@@ -1,5 +1,4 @@
-"""
-Known SolaX HEC Modbus register definitions.
+"""Known SolaX HEC Modbus register definitions.
 
 Only registers that have been experimentally verified should be added here.
 """
@@ -8,12 +7,12 @@ Only registers that have been experimentally verified should be added here.
 class InputRegisters:
     """Input registers."""
 
-    GRID_VOLTAGE = 0              # x100 V
+    GRID_VOLTAGE = 0          # x100 V
 
-    CHARGING_CURRENT = 4          # x100 A
-    CHARGING_POWER = 8            # W
+    CHARGING_CURRENT = 4      # x100 A
+    CHARGING_POWER = 8        # W
 
-    GRID_FREQUENCY = 12           # x100 Hz
+    GRID_FREQUENCY = 12       # x100 Hz
 
     # Mirrors
 
@@ -29,5 +28,6 @@ class HoldingRegisters:
 
     FAST_CHARGE_CURRENT = 1640
     CHARGE_MODE = 1641
+    CHARGER_USE_MODE = 1549
 
     UNKNOWN_1642 = 1642

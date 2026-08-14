@@ -2,9 +2,14 @@
 High-level client for the SolaX HEC charger.
 """
 
+import logging
+
 from .modbus import ModbusConnection
 from .models import ChargeMode, ChargerUseMode
 from .registers import HoldingRegisters, InputRegisters
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Charger:
@@ -70,14 +75,21 @@ class Charger:
         )
 
     @property
-    def charger_use_mode(self) -> ChargerUseMode:
+    def charger_use_mode(self) -> ChargerUseMode | None:
         """Return the current charger use mode."""
 
         value = self.modbus.read_holding(
             HoldingRegisters.CHARGER_USE_MODE
         )
 
-        return ChargerUseMode(value)
+        try:
+            return ChargerUseMode(value)
+        except ValueError:
+            _LOGGER.warning(
+                "Unknown charger use mode value received: %s",
+                value,
+            )
+            return None
 
     def set_charger_use_mode(self, mode: ChargerUseMode):
         """Set the charger use mode."""
